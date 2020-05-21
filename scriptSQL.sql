@@ -505,7 +505,7 @@ create table term_type
 );
 
 
-##### INSERTING DATA INTO THE TABLES (parameter/ process / term_type / tool tables are still empty) ###########
+##### INSERTING DATA INTO THE TABLES ###########
 
 
     INSERT INTO modified_edsssdb.has_disorder(document_id, date, disorder_id)
