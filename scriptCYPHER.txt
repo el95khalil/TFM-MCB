@@ -1,17 +1,30 @@
 NODES:
-1 : 
-LOAD CSV WITH HEADERS FROM "file:///disorder_concept.csv" AS row 		MERGE (d:Disorder {DisorderId: row.diseaseId, DisorderName: row.diseaseName}) 
-2 : 
-LOAD CSV WITH HEADERS FROM "file:///disorder_concept.csv" AS row		 MERGE (c:Concept {ConceptId: row.symptomId, ConceptName: row.symptomName})
-3: 
-LOAD CSV WITH HEADERS FROM "file:///source_snapshot.csv" AS row MERGE(s:Source{ SourceId:row.sourceId, SourceName:row.sourceName}) 
-4: 
-LOAD CSV WITH HEADERS FROM "file:///source_snapshot.csv" AS row 		MERGE (ss:Snapshot {Snapshot: row.snapshot})
+
+LOAD CSV WITH HEADERS FROM "file:///disorder_concept.csv" AS row 	
+MERGE (d:Disorder {DisorderId: row.diseaseId, DisorderName: row.diseaseName}) 
+
+LOAD CSV WITH HEADERS FROM "file:///disorder_concept.csv" AS row		
+MERGE (c:Concept {ConceptId: row.symptomId, ConceptName: row.symptomName})
+
+LOAD CSV WITH HEADERS FROM "file:///source_snapshot.csv" AS row 
+MERGE(s:Source{ SourceId:row.sourceId, SourceName:row.sourceName}) 
+
+LOAD CSV WITH HEADERS FROM "file:///source_snapshot.csv" AS row 	
+MERGE (ss:Snapshot {Snapshot: row.snapshot})
 
 RELATIONSHIPS:
-1: 
-LOAD CSV WITH HEADERS FROM "file:///disorder_concept.csv" AS row 		MATCH (c:Concept {ConceptId: row.symptomId})                                  			MATCH (d:Disorder {DisorderId:row.diseaseId})  						MERGE (d)-[dc:HAS]- > (c)
-2: 
-LOAD CSV WITH HEADERS FROM "file:///source_snapshot.csv" AS row 			MATCH (d:Disorder {DisorderId:row.disorderId})					 		MATCH (ss:Snapshot {Snapshot: row.snapshot}) 						MERGE (ss)-[:HAS_DISORDER]- > (d)
-3: 
-LOAD CSV WITH HEADERS FROM "file:///source_snapshot.csv" AS row 		MATCH (d:Disorder {DisorderId:row.disorderId}) 						MATCH (s:source {Source: row.sourceId}) 							MERGE (d)-[:HAS_SOURCE]- > (s)
+ 
+LOAD CSV WITH HEADERS FROM "file:///disorder_concept.csv" AS row 	
+MATCH (c:Concept {ConceptId: row.symptomId})                                  		
+MATCH (d:Disorder {DisorderId:row.diseaseId})  					
+MERGE (d)-[dc:HAS]- > (c)
+
+LOAD CSV WITH HEADERS FROM "file:///source_snapshot.csv" AS row 		
+MATCH (d:Disorder {DisorderId:row.disorderId})					 	
+MATCH (ss:Snapshot {Snapshot: row.snapshot}) 						
+MERGE (ss)-[:HAS_DISORDER]- > (d)
+
+LOAD CSV WITH HEADERS FROM "file:///source_snapshot.csv" AS row 	
+MATCH (d:Disorder {DisorderId:row.disorderId}) 			
+MATCH (s:source {Source: row.sourceId}) 						
+MERGE (d)-[:HAS_SOURCE]- > (s)
