@@ -1,3 +1,8 @@
+#!/usr/bin/env python
+# coding: utf-8
+
+
+# Import the necessary libraries
 import numpy as np
 import pandas as pd
 from sklearn.feature_selection import VarianceThreshold
@@ -6,22 +11,19 @@ from sklearn.metrics import pairwise_distances
 from sklearn.metrics import silhouette_score
 
 
-#feature_matrix = pd.read_csv("disorder_concept.csv")
+
+# Load the data 
 df = pd.read_csv('disorder_concept.csv')
 variances = pd.read_csv('df_variances.csv')
-
-
 feature_matrix = pd.crosstab(df.diseaseName,df.symptomName)
 
-# Guardamos la mtriz de distancias como un arreglo de Numpy
+
+# Save the distance metric as a numpy array
 f_m_np = feature_matrix.to_numpy()
 
 
-
-# Declaración de variables
-
-# Eps (epsilon) es uno de los parámetros que debe ser especificado para DBSCAN 
-# Definimos los siguientes valores para explorar los resultados:
+# Eps (epsilon) is one of the parameters that must be specified for DBSCAN
+# We define the following values to explore the results:
 epsilons = (0.2,
             0.3,
             0.4,
@@ -32,8 +34,8 @@ epsilons = (0.2,
             0.9
            )
 
-# MinPts (ms) es el otro parámetro que debe ser especificado para DBSCAN
-# Definimos los siguientes valores para explorar los resultados:
+# MinPts (ms) is the other parameter that must be specified for DBSCAN
+# We define the following values to explore the results:
 ms_values = (2,
              3,
              5,
@@ -41,41 +43,41 @@ ms_values = (2,
              30
             )
 
-# Índices de similitudes a utilizar
+# Similarity indices to use
 sim_metrics = (
            'jaccard',
            'dice'
           )
 
-# Listas que almacenan la combinación de parámetros y los resultados
-indss = list() # Índices de similitud
-mss = list() # Valores de MinPts
-epss = list() # Valores de Eps
-clusters = list() # Resultados del número de clusters
-noise = list() # Resultados del número de outliers
-silhouettes = list() # Resultados del coeficiente de silhouette
+# Lists to store the combination of parameters and results
+indss = list() # Indices of similarities 
+mss = list() # Values of MinPts
+epss = list() # Values of Eps
+clusters = list() # Number clusters
+noise = list() # Number of outliers
+silhouettes = list() # Results of the silhouette coefficient
 
 
-# Recorremos los 3 índices de similitud
+# Loop  through the 2 similarity indices 
 for ind in sim_metrics:
     
-    # Calculamos las distancias correspondientes con el índice de similitud
+    # Calculate the corresponding distances with the similarity index
     distances = pairwise_distances(f_m_np, w= variances,
                                    metric = ind)
     
-    # Recorremos los 4 posibles valores de MinPts
+    # Loop through the 5 values of MinPts
     for ms in ms_values:    
 
-            # Recorremos los 3 valores de Eps
+            # Loop through the 8 values of Eps
             for epsilon in epsilons:   
 
-                # Generamos el modelo a partir de los parámetros
+                # Generate the model from the parameters
                 labels = DBSCAN(eps = epsilon, 
                                        min_samples = ms, 
                                        metric = "precomputed"
                                       ).fit_predict(distances)
 
-                # Todos los elementos son asignados como "-1"
+                # All elements are assigned as "-1"
                 if not 0 in labels:
                     n_clusters = 0
                     n_noise = list(labels).count(-1)
@@ -88,7 +90,7 @@ for ind in sim_metrics:
                                                  labels,
                                                  metric = 'precomputed')
                 
-                # Guardamos los parámetros y los resultados
+                # Save the parameters and results
                 indss.append(ind)
                 mss.append(ms)
                 epss.append(epsilon)
@@ -98,7 +100,7 @@ for ind in sim_metrics:
 
 
 
-# Reestructuramos la información en un dataframe 
+# Restructure the information in a dataframe
 results = pd.DataFrame(list(zip(indss,
                                 mss,
                                 epss,
@@ -114,9 +116,9 @@ results = pd.DataFrame(list(zip(indss,
 
 
 
-# Vemos el contenido del dataframe
+# See the content of the dataframe
 results
 
 
-# Exportamos el dataframe a un fichero csv
+# Export the dataframe to a csv file
 results.to_csv('dbscan_param_opt1.csv', index = False)
