@@ -1,12 +1,8 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# # Inspección de los clusters que se forman con DBSCAN
 
-# **Author: Lucía Prieto Santamaría** (lucia.prieto.santamaria@alumnos.upm.es)
-
-
-# Importamos las librerías necesarias
+# Import the necessary libraries
 
 import pandas as pd
 import numpy as np
@@ -19,57 +15,50 @@ from sklearn.feature_selection import mutual_info_classif
 
 
 
-# Obtenemos el dataframe con los identificadores y nombres de las enfermedades
+# Load the data 
 df = pd.read_csv('disorder_concept.csv')
 diseases_names = df['diseaseName']
-
-# Del csv con las relaciones diseorder-feature obtenemos la lista de enfermedades con la que estamos trabajando
 diseases = df['diseaseId'].unique()
+feature = 'symptomName'
 
+
+# Apply Mutual information
 X = pd.crosstab(df.diseaseName,df.symptomName)
 y= X.index.tolist()
 mu_info = mutual_info_classif(X.to_numpy(), y, discrete_features=True)
 
 
-# Declaración de variables
 
-# Valores para los parámetros de DBSCAN previamente optimizados
+# Values from the optimized parameters 
 index = 'dice'
 epsilon = 0.7
 ms = 3
 
-# Nombre de la característica con la que se está trabajando
-feature = 'symptomName'
 
-# Diccionario en el que vamos a almacenar las enfermedades que hay dentro de cada cluster
+
+# Dictionary to store the diseases within each cluster
 clusters_diseases = {}
 
 
-# Leemos el fichero csv con la matriz de características que hemos generado 
-# con el script "generate_boolean_matrices.py"
-
-#X = pd.crosstab(df.diseaseName,df.symptomName)
-
-
-# Guardamos la mtriz de distancias como un arreglo de Numpy
+# Save the distance metric as a numpy array
 f_m_np = X.to_numpy()
 
 
-# Calculamos las distancias correspondientes con el índice de similitud
+# Calculate the corresponding distances with the similarity index
 distances = pairwise_distances(f_m_np, w=mu_info,
                                metric = index)
 
 
-# Generamos el modelo a partir de los parámetros
+# Generate the model from the parameters
 labels = DBSCAN(eps = epsilon, 
                        min_samples = ms, 
                        metric = "precomputed"
                       ).fit_predict(distances)
 
-# Evaluación del modelo anterior
-#      --> Coeficiente de silhouette
-#      --> Número de clusters
-#      --> Número de outliers
+# Evaluation of the previous model
+# -> Silhouette coefficient
+# -> Number of clusters
+# -> Number of outliers
 silh_coef = silhouette_score(distances,
                              labels,
                              metric = 'precomputed')
@@ -77,7 +66,7 @@ n_clusters =  len(set(labels)) - (1 if -1 in labels else 0)
 n_noise = list(labels).count(-1)
 
 
-# Estructuramos las enfermedades para saber cuáles pertenecen a cada cluster
+# Structure the diseases to know which ones belong to each cluster
 for i in range(len(diseases)): 
     if labels[i] != -1:
         if labels[i] in clusters_diseases:
@@ -86,7 +75,7 @@ for i in range(len(diseases)):
             clusters_diseases[labels[i]] = [diseases[i]] 
 
 
-# Escribimos los resultados en un fichero
+# Save the results in txt files
 
 foutname = "clusters_" + feature + '_' + index + "_ms" + str(ms) + "_eps" + str(epsilon) + ".txt"
 
@@ -106,7 +95,7 @@ with open(foutname, "w") as fileout:
         fileout.write(str("Cluster " + str(clus) + ":\n"))
 
         for dis in diseases_list:
-            # Obtenemos el nombre de la enfermedad a partir del dataframe diseases_names
+            # Get the name of the disease from the dataframe diseases_names
             dis_name = df.loc[df["diseaseId"] == dis]["diseaseName"].values[0]
             fileout.write(str("\t" + str(dis) + "\t" + str(dis_name) + "\n"))
             
