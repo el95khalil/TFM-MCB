@@ -26,11 +26,10 @@ print(thr_var)
 
 
 #plot the distribution of all the variances
-plt.plot(thr_var)
-plt.xlabel('Features')
-plt.ylabel('Variance Threshold')
-plt.title('Histogram of features versus Variance Threshols')
-
+ax= sns.distplot(thr_var, hist=True, kde=False, bins='auto', color='blue', hist_kws={'edgecolor':'black'})
+ax.set(xlabel='Variance',ylabel='Count')
+plt.title('Histogram of Variance Distribution')
+#plt.savefig('VT.png')
 
 
 
