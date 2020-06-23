@@ -7,6 +7,7 @@ import numpy as np
 import pandas as pd
 from sklearn.feature_selection import VarianceThreshold
 import matplotlib.pyplot as plt
+import seaborn as sns
 
 
 
